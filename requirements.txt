@@ -17,7 +17,7 @@ psycopg2-binary==2.9.9
 
 # Authentication & Authorization
 Flask-JWT-Extended==4.5.2
-PyJWT==2.8.1
+PyJWT>=2.8.0
 
 # API & Middleware
 Flask-CORS==4.0.0
