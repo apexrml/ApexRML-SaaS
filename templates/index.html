@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Find car parts, local garages, and recovery services across the UK">
+    <meta name="theme-color" content="#0d5a3c">
+    <meta name="color-scheme" content="light dark">
+    
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ApexRML">
+    <link rel="apple-touch-icon" href="/static/images/icons/icon-192x192.png">
+    <link rel="apple-touch-startup-image" href="/static/images/splash-screens/splash-1080x1920.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/images/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/static/images/icons/icon-512x512.png">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/static/css/reset.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
+    
+    <!-- Preconnect to External Services -->
+    <link rel="preconnect" href="https://api.stripe.com">
+    <link rel="preconnect" href="https://api.openai.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <title>ApexRML - Car Parts, Garages & Recovery Services</title>
+</head>
+<body class="light-mode">
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="loading-indicator hidden">
+        <div class="spinner"></div>
+        <p>Loading ApexRML...</p>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-container">
+            <!-- Logo -->
+            <a href="/" class="navbar-brand">
+                <svg class="logo-icon" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="200" height="200" rx="40" fill="#0d5a3c"/>
+                    <text x="50%" y="50%" font-size="80" font-weight="bold" fill="#f5a623" text-anchor="middle" dominant-baseline="central">A</text>
+                </svg>
+                <span class="navbar-title">ApexRML</span>
+            </a>
+            
+            <!-- Navigation Links -->
+            <ul class="navbar-menu" id="navbar-menu">
+                <li><a href="/#parts" class="nav-link">Parts</a></li>
+                <li><a href="/#garages" class="nav-link">Garages</a></li>
+                <li><a href="/#recovery" class="nav-link">Recovery</a></li>
+                <li><a href="/#ai" class="nav-link">AI Diagnosis</a></li>
+                <li class="nav-separator"></li>
+                <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+                <li><a href="/sign-out" class="nav-link nav-logout" id="logout-btn">Sign Out</a></li>
+            </ul>
+            
+            <!-- Mobile Menu Toggle -->
+            <button class="navbar-toggle" id="navbar-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <!-- Install Button (PWA) -->
+            <button class="btn-install-pwa hidden" id="install-btn" aria-label="Install app">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M7 12h10"/>
+                </svg>
+                Install App
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main id="app" class="main-content">
+        
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero-background"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">Your UK Automotive Hub</h1>
+                <p class="hero-subtitle">Find Parts • Locate Garages • Book Recovery</p>
+                
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="search-input" 
+                        placeholder="e.g., 'brake pads' or postcode 'SW1A 1AA'"
+                        autocomplete="off"
+                    >
+                    <button class="btn btn-primary" id="search-btn">Search</button>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">50K+</span>
+                        <span class="stat-label">Parts</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">5K+</span>
+                        <span class="stat-label">Garages</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">1K+</span>
+                        <span class="stat-label">Recovery</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Parts Finder Section -->
+        <section class="section" id="parts">
+            <div class="container">
+                <h2 class="section-title">Parts Finder</h2>
+                <p class="section-subtitle">Real-time pricing from UK suppliers</p>
+                
+                <div class="parts-grid" id="parts-grid">
+                    <!-- Parts dynamically loaded here -->
+                </div>
+                
+                <button class="btn btn-outline" id="view-all-parts">View All Parts</button>
+            </div>
+        </section>
+        
+        <!-- Garage Finder Section -->
+        <section class="section section-alternate" id="garages">
+            <div class="container">
+                <h2 class="section-title">Find Local Garages</h2>
+                <p class="section-subtitle">Verified independent and franchise garages</p>
+                
+                <!-- Filters -->
+                <div class="garage-filters">
+                    <input type="text" class="filter-input" id="postcode-filter" placeholder="Enter postcode">
+                    <select class="filter-select" id="service-filter">
+                        <option value="">All Services</option>
+                        <option value="diagnostics">Diagnostics</option>
+                        <option value="repairs">Repairs</option>
+                        <option value="mot">MOT Testing</option>
+                        <option value="maintenance">Maintenance</option>
+                    </select>
+                    <button class="btn btn-secondary" id="apply-filters">Apply Filters</button>
+                </div>
+                
+                <div class="garages-list" id="garages-list">
+                    <!-- Garages dynamically loaded here -->
+                </div>
+                
+                <button class="btn btn-outline" id="view-all-garages">View All Garages</button>
+            </div>
+        </section>
+        
+        <!-- Recovery Network Section -->
+        <section class="section" id="recovery">
+            <div class="container">
+                <h2 class="section-title">Recovery Services</h2>
+                <p class="section-subtitle">24/7 recovery available nationwide</p>
+                
+                <div class="recovery-card">
+                    <div class="recovery-info">
+                        <h3>Need Recovery?</h3>
+                        <p>Get help fast. Our recovery network covers all of the UK.</p>
+                        <button class="btn btn-primary" id="request-recovery">Request Recovery</button>
+                    </div>
+                    <div class="recovery-features">
+                        <div class="feature">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            <span>24/7 Availability</span>
+                        </div>
+                        <div class="feature">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            <span>Real-time Tracking</span>
+                        </div>
+                        <div class="feature">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            <span>Insurance Approved</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- AI Diagnostics Section -->
+        <section class="section section-alternate" id="ai">
+            <div class="container">
+                <h2 class="section-title">AI Car Diagnosis</h2>
+                <p class="section-subtitle">Describe the problem, get instant diagnosis and parts recommendation</p>
+                
+                <div class="diagnosis-container">
+                    <div class="diagnosis-form">
+                        <div class="form-group">
+                            <label for="reg-number">Vehicle Registration</label>
+                            <input type="text" id="reg-number" placeholder="e.g., AB21 XYZ" maxlength="7">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="issue-description">Describe the Issue</label>
+                            <textarea 
+                                id="issue-description" 
+                                placeholder="e.g., 'Car makes squeaking noise when braking at low speeds'"
+                                rows="4"
+                            ></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="issue-severity">Issue Severity</label>
+                            <select id="issue-severity">
+                                <option value="">Select severity...</option>
+                                <option value="minor">Minor (cosmetic only)</option>
+                                <option value="moderate">Moderate (affects performance)</option>
+                                <option value="severe">Severe (safety issue)</option>
+                                <option value="critical">Critical (vehicle immobile)</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-primary" id="diagnose-btn">Get AI Diagnosis</button>
+                    </div>
+                    
+                    <!-- Diagnosis Results -->
+                    <div class="diagnosis-results hidden" id="diagnosis-results">
+                        <div class="diagnosis-header">
+                            <h3>AI Diagnosis Results</h3>
+                            <button class="btn-close" id="close-diagnosis">×</button>
+                        </div>
+                        
+                        <div class="diagnosis-content">
+                            <div class="fault-codes" id="fault-codes"></div>
+                            <div class="recommended-parts" id="recommended-parts"></div>
+                            <div class="estimated-cost" id="estimated-cost"></div>
+                        </div>
+                        
+                        <div class="diagnosis-actions">
+                            <button class="btn btn-primary" id="get-quote">Get Quote from Local Garage</button>
+                            <button class="btn btn-secondary" id="view-parts">View Parts on ApexRML</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- CTA Section -->
+        <section class="section cta-section">
+            <div class="container">
+                <h2>Ready to get started?</h2>
+                <p>Join thousands of UK car owners and mechanics using ApexRML</p>
+                <div class="cta-buttons">
+                    <button class="btn btn-primary" id="sign-up-btn">Sign Up Free</button>
+                    <button class="btn btn-outline" id="learn-more-btn">Learn More</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>ApexRML</h4>
+                <ul>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/careers">Careers</a></li>
+                    <li><a href="/press">Press</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>For Customers</h4>
+                <ul>
+                    <li><a href="/parts-finder">Parts Finder</a></li>
+                    <li><a href="/garage-finder">Garage Finder</a></li>
+                    <li><a href="/recovery">Recovery</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>For Businesses</h4>
+                <ul>
+                    <li><a href="/garage-signup">Register Garage</a></li>
+                    <li><a href="/recovery-signup">Join Recovery Network</a></li>
+                    <li><a href="/affiliate">Affiliate Program</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms of Service</a></li>
+                    <li><a href="/cookies">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 ApexRML Ltd. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://twitter.com/apexrml" target="_blank" rel="noopener">Twitter</a>
+                <a href="https://facebook.com/apexrml" target="_blank" rel="noopener">Facebook</a>
+                <a href="https://instagram.com/apexrml" target="_blank" rel="noopener">Instagram</a>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Modal: Sign Up -->
+    <div class="modal hidden" id="signup-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-signup-modal">×</button>
+            <h2>Create Account</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="user-type">Account Type</label>
+                    <select id="user-type" required>
+                        <option value="customer">Car Owner</option>
+                        <option value="garage">Garage Owner</option>
+                        <option value="recovery_driver">Recovery Driver</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Account</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Offline Page -->
+    <div class="offline-notice hidden" id="offline-notice">
+        <p>You're currently offline. Some features may not be available.</p>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="/static/js/pwa-install.js" defer></script>
+    <script src="/static/js/app.js" defer></script>
+    <script src="/static/js/garage-finder.js" defer></script>
+    <script src="/static/js/parts-finder.js" defer></script>
+    <script src="/static/js/ai-diagnosis.js" defer></script>
+    
+    <!-- Stripe (for payments) -->
+    <script src="https://js.stripe.com/v3/"></script>
+</body>
+</html>
